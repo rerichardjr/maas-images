@@ -45,8 +45,7 @@ build {
   post-processor "shell-local" {
     inline = [
       "QCOW2=output-qemu/${var.ubuntu_release}-server-cloudimg-amd64.qcow2",
-      "VERSION=${var.ubuntu_release}",
-      "OUTDIR=maas-ubuntu-${VERSION}-hp-elitedesk-mini",
+      "OUTDIR=maas-ubuntu-${var.ubuntu_release}"-hp-elitedesk-mini",
       "mkdir -p $OUTDIR",
       "cp $QCOW2 $OUTDIR/disk1.img",
       "virt-extract-boot --output-dir $OUTDIR $QCOW2",
