@@ -6,13 +6,13 @@ on:
     branches: [ main ]
     paths:
       - '.github/workflows/ubuntu-maas-hpelitedeskmini.yaml'
-      - 'packer/ubuntu-maas-hp-elitedesk.pkr.hcl'
+      - 'packer/hp-elitedesk-mini/ubuntu-maas-hp-elitedesk.pkr.hcl'
 
   pull_request:
     branches: [ main ]
     paths:
       - '.github/workflows/ubuntu-maas-hpelitedeskmini.yaml'
-      - 'packer/ubuntu-maas-hp-elitedesk.pkr.hcl'
+      - 'packer/hp-elitedesk-mini/ubuntu-maas-hp-elitedesk.pkr.hcl'
 
   workflow_dispatch:
 
