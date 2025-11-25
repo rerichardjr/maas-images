@@ -26,8 +26,8 @@ source "qemu" "ubuntu" {
   boot_wait          = "5s"
   headless           = true
   floppy_files = [
-    "seed/user-data",
-    "seed/meta-data"
+    "../seed/user-data",
+    "../seed/meta-data"
   ]
 }
 
