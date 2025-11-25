@@ -30,6 +30,7 @@ jobs:
       - name: Clone packer-maas templates
         run: git clone https://github.com/canonical/packer-maas.git templates
 
+      # Inject the tg3 highdma fix (see https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1447664)
       - name: Add tg3 highdma fix for HP EliteDesk Mini
         run: |
           cat > templates/ubuntu/scripts/99-fix-tg3.sh << 'EOF'
