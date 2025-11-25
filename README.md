@@ -1,2 +1,2 @@
 # maas-images  
-**Custom Ubuntu images for Canonical MAAS**
+**Custom images for Canonical MAAS**
