@@ -65,6 +65,9 @@ jobs:
       - name: Build seed.img
         run: cloud-localds seed.img seed/user-data seed/meta-data
 
+      - name: Move seed files into Packer directory
+        run: mv seed packer/hp-elitedesk-mini/  
+
       - name: Build MAAS image with Packer
         run: |
           cd packer/hp-elitedesk-mini
