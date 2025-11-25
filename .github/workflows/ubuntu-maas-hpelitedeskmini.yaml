@@ -1,27 +1,36 @@
 ---
-name: Build MAAS-ready Ubuntu image for HP EliteDesk Mini (tg3 fix)
+name: Build MAAS image — HP EliteDesk Mini (tg3 fix)
 
-'on':
+on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+    paths:
+      - '.github/workflows/ubuntu-maas-hpelitedeskmini.yaml'
+      - 'packer/ubuntu-maas-hp-elitedesk.pkr.hcl'
+
   pull_request:
-    branches:
-      - main
-  workflow_dispatch: {}
+    branches: [ main ]
+    paths:
+      - '.github/workflows/ubuntu-maas-hpelitedeskmini.yaml'
+      - 'packer/ubuntu-maas-hp-elitedesk.pkr.hcl'
+
+  workflow_dispatch:
 
 jobs:
   build-maas-image:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Packer and tools
+      - name: Install dependencies (Packer + tools)
         run: |
           sudo apt update -qq
-          sudo apt install -y wget gnupg qemu-utils git ethtool
+          sudo apt install -y wget gnupg qemu-utils ethtool libguestfs-tools
+
+          # Install latest Packer
           wget -O- https://apt.releases.hashicorp.com/gpg \
             | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
           echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] \
@@ -30,44 +39,16 @@ jobs:
           sudo apt update -qq
           sudo apt install -y packer
 
-      - name: Clone packer-maas templates
-        run: git clone https://github.com/canonical/packer-maas.git templates
-
-      - name: Add tg3 fix for HP EliteDesk Mini
+      - name: Build MAAS image with Packer
         run: |
-          mkdir -p templates/ubuntu/scripts
-          cat > templates/ubuntu/scripts/99-fix-tg3.sh <<'EOF'
-          #!/bin/bash
-          set -euo pipefail
-          cat <<RULE | tee /etc/udev/rules.d/80-tg3-highdma-fix.rules
-          ACTION=="add", SUBSYSTEM=="net", ATTRS{vendor}=="0x14e4", \
-          ATTRS{device}=="0x1687", RUN+="/sbin/ethtool -K %k highdma off"
-          RULE
-          EOF
-          chmod +x templates/ubuntu/scripts/99-fix-tg3.sh
-
-      - name: Build image with Packer
-        run: |
-          cd templates/ubuntu
+          cd packer/hp-elitedesk-mini
           packer init .
-          packer build ubuntu-cloudimg.pkr.hcl
+          packer build ubuntu-maas-hp-elitedesk.pkr.hcl
 
-      - name: Package MAAS tarball
-        run: |
-          QCOW2=$(find templates/ubuntu -name "*.qcow2" | head -1)
-          VERSION=$(basename "$QCOW2" | sed -E 's/ubuntu-([0-9.]+).*/\1/')
-          OUTDIR="maas-ubuntu-${VERSION}-hp-elitedesk-mini"
-          mkdir -p "$OUTDIR"
-          cp "$QCOW2" "$OUTDIR/disk1.img"
-          cp templates/ubuntu/output-qemu/boot-kernel \
-             templates/ubuntu/output-qemu/boot-initrd "$OUTDIR/"
-          tar -czf "${OUTDIR}.tar.gz" "$OUTDIR"
-          echo "Created ${OUTDIR}.tar.gz"
-
-      - name: Upload artifact
+      - name: Upload MAAS-ready tar.gz
         uses: actions/upload-artifact@v4
         with:
-          name: maas-hp-elitedesk-mini-tgz
-          path: maas-ubuntu-*.tar.gz
+          name: maas-ubuntu-noble-hp-elitedesk-mini
+          path: packer/hp-elitedesk-mini/maas-ubuntu-noble-hp-elitedesk-mini.tar.gz
           retention-days: 30
   
