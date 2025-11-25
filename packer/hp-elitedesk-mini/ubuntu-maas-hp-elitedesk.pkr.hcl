@@ -21,13 +21,15 @@ source "qemu" "ubuntu" {
   memory             = 2048
   ssh_username       = "ubuntu"
   ssh_private_key_file = "~/.ssh/packer_id_rsa"
-  qemuargs = [
-  ["-drive", "file=seed.img,if=virtio,format=raw"]
-  ]
   ssh_timeout        = "20m"
   shutdown_command   = "sudo shutdown -P now"
   boot_wait          = "5s"
   headless           = true
+
+  cloud_init {
+    user_data_file = "seed/user-data"
+    meta_data_file = "seed/meta-data"
+  }
 }
 
 build {
