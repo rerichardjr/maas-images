@@ -14,21 +14,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
-      # install packer from hashicorp repo + other tools we need
+
       - name: Install Packer and tools
         run: |
-          sudo apt update
+          sudo apt update -qq
           sudo apt install -y wget gnupg qemu-utils git ethtool
           wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
-          echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-          sudo apt update && sudo apt install -y packer
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list > /dev/null
+          sudo apt update -qq
+          sudo apt install -y packer
 
-      # clone the official canonical packer templates for maas images
       - name: Clone packer-maas templates
         run: git clone https://github.com/canonical/packer-maas.git templates
 
-      # inject the tg3 highdma fix (see https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1447664)
       - name: Add tg3 fix (HP EliteDesk Mini PXE boot)
         run: |
           cat > templates/ubuntu/scripts/99-fix-tg3.sh <<'EOF'
@@ -40,26 +38,23 @@ jobs:
           EOF
           chmod +x templates/ubuntu/scripts/99-fix-tg3.sh
 
-      # build the qcow2 image with our custom script included
       - name: Build image
         run: |
           cd templates/ubuntu
           packer init .
           packer build ubuntu-cloudimg.pkr.hcl
 
-      # create the exact .tar.gz format that maas expects for custom images
       - name: Package MAAS tarball
         run: |
           QCOW2=$(find templates/ubuntu -name "*.qcow2" | head -1)
-          VERSION=$(basename "$QCOW2" | sed -r 's/-amd64.*|.qcow2$//g' | cut -d- -f2-)
+          VERSION=$(basename "$QCOW2" | sed -E 's/(ubuntu-[0-9.]+).*/\1/' | cut -d- -f2-)
           OUTDIR=maas-ubuntu-${VERSION}-hp-elitedesk-mini
           mkdir -p "$OUTDIR"
-          cp "$QCOW2" templates/ubuntu/output-qemu/boot-{kernel,initrd} "$OUTDIR"/
-          mv "$OUTDIR"/"$(basename "$QCOW2")" "$OUTDIR"/disk1.img
+          cp "$QCOW2" "$OUTDIR"/disk1.img
+          cp templates/ubuntu/output-qemu/boot-kernel templates/ubuntu/output-qemu/boot-initrd "$OUTDIR"/
           tar -czf "${OUTDIR}.tar.gz" "$OUTDIR"
           echo "Created ${OUTDIR}.tar.gz"
 
-      # upload the final tgz so it can be downloaded from the actions run
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
