@@ -25,11 +25,10 @@ source "qemu" "ubuntu" {
   shutdown_command   = "sudo shutdown -P now"
   boot_wait          = "5s"
   headless           = true
-}
-
-cloud_init {
-  user_data_file = "seed/user-data"
-  meta_data_file = "seed/meta-data"
+  floppy_files = [
+    "seed/user-data",
+    "seed/meta-data"
+  ]
 }
 
 build {
