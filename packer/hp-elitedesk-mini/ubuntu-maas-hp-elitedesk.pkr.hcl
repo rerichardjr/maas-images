@@ -20,7 +20,10 @@ source "qemu" "ubuntu" {
   format             = "qcow2"
   memory             = 2048
   ssh_username       = "ubuntu"
-  ssh_password       = "ubuntu"
+  ssh_private_key_file = "~/.ssh/packer_id_rsa"
+  qemuargs = [
+  ["-drive", "file=seed.img,if=virtio,format=raw"]
+  ]
   ssh_timeout        = "20m"
   shutdown_command   = "sudo shutdown -P now"
   boot_wait          = "5s"
