@@ -14,8 +14,8 @@ variable "ubuntu_release" {
 
 source "qemu" "ubuntu" {
   disk_image         = true
-  iso_url            = "https://cloud-images.ubuntu.com/releases/server/${var.ubuntu_release}/ubuntu-${var.ubuntu_release}-server-cloudimg-amd64.img"
-  iso_checksum       = "file:https://cloud-images.ubuntu.com/releases/server/${var.ubuntu_release}/SHA256SUMS"
+  iso_url            = "https://cloud-images.ubuntu.com/releases/server/${var.ubuntu_release}/release/ubuntu-${var.ubuntu_release}-server-cloudimg-amd64.img"
+  iso_checksum       = "file:https://cloud-images.ubuntu.com/releases/server/${var.ubuntu_release}/release/SHA256SUMS"
   disk_size          = "20000"
   format             = "qcow2"
   memory             = 2048
