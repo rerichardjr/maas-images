@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies (Packer + tools)
         run: |
           sudo apt update -qq
-          sudo apt install -y wget gnupg qemu-utils ethtool libguestfs-tools
+          sudo apt install -y wget gnupg qemu-utils ethtool libguestfs-tools cloud-image-utils
 
           # Install latest Packer
           wget -O- https://apt.releases.hashicorp.com/gpg \
@@ -38,6 +38,32 @@ jobs:
             | sudo tee /etc/apt/sources.list.d/hashicorp.list > /dev/null
           sudo apt update -qq
           sudo apt install -y packer
+
+      - name: Generate SSH keypair for Packer
+        run: |
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/packer_id_rsa -N ""
+          echo "Generated keypair for Packer"
+
+      - name: Create cloud-init seed files
+        run: |
+          mkdir seed
+          cat > seed/user-data <<EOF
+          #cloud-config
+          users:
+            - name: ubuntu
+              ssh-authorized-keys:
+                - $(cat ~/.ssh/packer_id_rsa.pub)
+              sudo: ALL=(ALL) NOPASSWD:ALL
+              groups: sudo
+              shell: /bin/bash
+          EOF
+          cat > seed/meta-data <<EOF
+          instance-id: packer-build
+          local-hostname: ubuntu-cloudimg
+          EOF
+
+      - name: Build seed.img
+        run: cloud-localds seed.img seed/user-data seed/meta-data
 
       - name: Build MAAS image with Packer
         run: |
