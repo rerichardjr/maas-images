@@ -1,0 +1,69 @@
+name: Build MAAS-ready Ubuntu image for HP EliteDesk Mini
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-maas-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y wget gnupg software-properties-common qemu-utils git ethtool
+
+      - name: Install Packer
+        run: |
+          wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update && sudo apt install -y packer
+
+      - name: Clone packer-maas templates
+        run: git clone https://github.com/canonical/packer-maas.git templates
+
+      - name: Add tg3 highdma fix for HP EliteDesk Mini
+        run: |
+          cat > templates/ubuntu/scripts/99-fix-tg3.sh << 'EOF'
+          #!/bin/bash
+          set -euo pipefail
+          cat <<RULE | tee /etc/udev/rules.d/80-tg3-highdma-fix.rules
+          ACTION=="add", SUBSYSTEM=="net", ATTRS{vendor}=="0x14e4", ATTRS{device}=="0x1687", RUN+="/sbin/ethtool -K %k highdma off"
+          RULE
+          EOF
+          chmod +x templates/ubuntu/scripts/99-fix-tg3.sh
+
+      - name: Build image with Packer
+        run: |
+          cd templates/ubuntu
+          packer init .
+          packer build ubuntu-cloudimg.pkr.hcl
+
+      - name: Prepare MAAS-ready tarball
+        run: |
+          QCOW2=$(find templates/ubuntu -name "*.qcow2" | head -1)
+          VERSION=$(basename "$QCOW2" | cut -d- -f1-3)   # e.g. ubuntu-24.04
+          OUTDIR=maas-image-${VERSION}-hp-elitedesk-mini
+
+          mkdir -p "$OUTDIR"
+          cp "$QCOW2"                      "$OUTDIR/disk1.img"
+          cp templates/ubuntu/output-qemu/boot-kernel "$OUTDIR/"
+          cp templates/ubuntu/output-qemu/boot-initrd "$OUTDIR/"
+
+          tar -czf "${OUTDIR}.tar.gz" "$OUTDIR"
+          echo "MAAS image created: ${OUTDIR}.tar.gz"
+
+      - name: Upload MAAS tarball as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: maas-hp-elitedesk-mini-ubuntu-tgz
+          path: maas-image-*.tar.gz
+          retention-days: 30
