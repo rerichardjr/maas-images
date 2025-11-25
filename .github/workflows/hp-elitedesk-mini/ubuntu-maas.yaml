@@ -1,6 +1,6 @@
 name: Build MAAS-ready Ubuntu image for HP EliteDesk Mini (tg3 fix)
 
-on:
+'on':
   push:
     branches:
       - main
