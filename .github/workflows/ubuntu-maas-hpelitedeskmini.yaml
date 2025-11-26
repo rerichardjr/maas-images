@@ -41,7 +41,8 @@ jobs:
 
       - name: Generate SSH keypair for Packer
         run: |
-          ssh-keygen -t rsa -b 4096 -f ~/.ssh/packer_id_rsa -N ""
+          mkdir -p ssh-key
+          ssh-keygen -t rsa -b 4096 -f ssh-key/packer_id_rsa -N ""
           echo "Generated keypair for Packer"
 
       - name: Create cloud-init seed files
@@ -52,7 +53,7 @@ jobs:
           users:
             - name: ubuntu
               ssh-authorized-keys:
-                - $(cat ~/.ssh/packer_id_rsa.pub)
+                - $(cat ssh-key/packer_id_rsa.pub)
               sudo: ALL=(ALL) NOPASSWD:ALL
               groups: sudo
               shell: /bin/bash
@@ -66,7 +67,7 @@ jobs:
         run: cloud-localds seed.img seed/user-data seed/meta-data
 
       - name: Move seed files into Packer directory
-        run: mv seed packer/hp-elitedesk-mini/  
+        run: mv seed.img seed/ packer/hp-elitedesk-mini/  
 
       - name: Build MAAS image with Packer
         run: |
