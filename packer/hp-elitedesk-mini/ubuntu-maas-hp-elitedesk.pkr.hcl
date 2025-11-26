@@ -20,7 +20,7 @@ source "qemu" "ubuntu" {
   format             = "qcow2"
   memory             = 2048
   ssh_username       = "ubuntu"
-  ssh_private_key_file = "../ssh-key/packer_id_rsa"
+  ssh_private_key_file = "../../ssh-key/packer_id_rsa"
   ssh_timeout        = "20m"
   ssh_clear_authorized_keys = true
   floppy_files          = ["seed.img"]
