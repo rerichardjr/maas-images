@@ -52,7 +52,7 @@ jobs:
           #cloud-config
           users:
             - name: ubuntu
-              ssh-authorized-keys:
+              ssh_authorized_keys:
                 - $(cat ssh-key/packer_id_rsa.pub)
               sudo: ALL=(ALL) NOPASSWD:ALL
               groups: sudo
