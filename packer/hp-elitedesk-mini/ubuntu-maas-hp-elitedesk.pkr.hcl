@@ -35,6 +35,7 @@ build {
 
   # Apply tg3 fix (runs inside the image as root)
   provisioner "shell" {
+    execute_command = "sudo -S sh -c '{{ .Vars }} {{ .Path }}'"
     inline = [
       "apt-get update && apt-get install -y ethtool",
       "mkdir -p /etc/udev/rules.d",
