@@ -20,15 +20,14 @@ source "qemu" "ubuntu" {
   format             = "qcow2"
   memory             = 2048
   ssh_username       = "ubuntu"
-  ssh_private_key_file = "~/.ssh/packer_id_rsa"
+  ssh_private_key_file = "../ssh0-key/packer_id_rsa"
   ssh_timeout        = "20m"
+  ssh_clear_authorized_keys = true
+  floppy_files          = ["seed.img"]
+  floppy_label          = "cidata"
   shutdown_command   = "sudo shutdown -P now"
   boot_wait          = "5s"
   headless           = true
-  floppy_files = [
-    "../seed/user-data",
-    "../seed/meta-data"
-  ]
 }
 
 build {
