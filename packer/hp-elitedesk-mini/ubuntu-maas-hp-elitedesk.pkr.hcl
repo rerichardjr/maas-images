@@ -24,7 +24,7 @@ source "qemu" "ubuntu" {
   ssh_timeout        = "20m"
   ssh_clear_authorized_keys = true
   floppy_files          = ["seed.img"]
-  floppy_label          = "cidata"
+  qemuargs              = [ ["-fda", "seed.img"] ]
   shutdown_command   = "sudo shutdown -P now"
   boot_wait          = "5s"
   headless           = true
