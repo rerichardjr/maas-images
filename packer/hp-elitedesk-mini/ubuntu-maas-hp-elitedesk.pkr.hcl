@@ -46,16 +46,19 @@ build {
   }
 
   # Extract boot files and package MAAS-ready .tar.gz (runs on host)
-  post-processor "shell-local" {
+post-processor "shell-local" {
     inline = [
-      "QCOW2=output-qemu/${var.ubuntu_release}-server-cloudimg-amd64.qcow2",
-      "OUTDIR=maas-ubuntu-${var.ubuntu_release}-hp-elitedesk-mini",
+      "echo 'Looking for QCOW2 file...' && ls -la output-qemu/",
+      "QCOW2=$(find output-qemu -name '*.qcow2' | head -1)",
+      "echo \"Found QCOW2: $QCOW2\"",
+      "OUTDIR=maas-ubuntu-24.04-hp-elitedesk-mini",
       "mkdir -p $OUTDIR",
-      "cp $QCOW2 $OUTDIR/disk1.img",
-      "virt-extract-boot --output-dir $OUTDIR $QCOW2",
+      "cp \"$QCOW2\" $OUTDIR/disk1.img",
+      "virt-copy-out -a \"$QCOW2\" /boot/vmlinuz $OUTDIR/boot-kernel",
+      "virt-copy-out -a \"$QCOW2\" '/boot/initrd.img-*' $OUTDIR/boot-initrd || true",
       "tar -czf $OUTDIR.tar.gz -C $OUTDIR .",
-      "rm -rf $OUTDIR", 
-      "echo 'MAAS-ready tar.gz created: $OUTDIR.tar.gz'"
+      "rm -rf $OUTDIR",
+      "echo 'SUCCESS: MAAS image created → $OUTDIR.tar.gz'"
     ]
   }
 }
