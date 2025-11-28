@@ -53,7 +53,7 @@ post-processor "shell-local" {
     inline = [
       "echo 'Looking for QCOW2 file...' && ls -la output-qemu/",
       #"QCOW2=$(find output-qemu -name '*.qcow2' | head -1)",
-      "QCOW2=packer-ubuntu",
+      "QCOW2=output-qemu/packer-ubuntu",
       "echo \"Found QCOW2: $QCOW2\"",
       "OUTDIR=maas-ubuntu-$VERSION-hp-elitedesk-mini",
       "mkdir -p $OUTDIR",
