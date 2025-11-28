@@ -29,7 +29,7 @@ source "qemu" "ubuntu" {
   boot_wait          = "5s"
   headless           = true
   output_directory = "output-qemu"
-  output_filename = "ubuntu-${var.ubuntu_release}.qcow2"
+  #output_filename = "ubuntu-${var.ubuntu_release}.qcow2"
 }
 
 build {
@@ -52,7 +52,8 @@ post-processor "shell-local" {
     environment_vars = ["VERSION=${var.ubuntu_release}"]
     inline = [
       "echo 'Looking for QCOW2 file...' && ls -la output-qemu/",
-      "QCOW2=$(find output-qemu -name '*.qcow2' | head -1)",
+      #"QCOW2=$(find output-qemu -name '*.qcow2' | head -1)",
+      "QCOW2=packer-ubuntu"
       "echo \"Found QCOW2: $QCOW2\"",
       "OUTDIR=maas-ubuntu-$VERSION-hp-elitedesk-mini",
       "mkdir -p $OUTDIR",
