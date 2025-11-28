@@ -67,9 +67,10 @@ post-processor "shell-local" {
       "sudo lsblk -nrpo NAME,FSTYPE /dev/nbd0",
 
       # detect ext4 partition
-      "PART=$(lsblk -nrpo NAME,FSTYPE /dev/nbd0 | awk '$2==\"ext4\" {print $1; exit}')",
-      "echo \"Mounting partition: $PART\"",
-      "sudo mount \"$PART\" /mnt",
+      #"PART=$(lsblk -nrpo NAME,FSTYPE /dev/nbd0 | awk '$2==\"ext4\" {print $1; exit}')",
+      #"echo \"Mounting partition: $PART\"",
+      #"sudo mount \"$PART\" /mnt",
+      "sudo mount /dev/nbd0p1 /mnt",
 
       # copy kernel/initrd
       "cp /mnt/boot/vmlinuz-* \"$OUTDIR/boot-kernel\" || true",
