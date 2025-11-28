@@ -66,7 +66,7 @@ post-processor "shell-local" {
       "sudo qemu-nbd --connect=/dev/nbd0 \"$QCOW2\"",
 
       # detect ext4 partition
-      "PART=$(lsblk -nrpo NAME,FSTYPE /dev/nbd0 | awk '$2=="ext4" {print $1; exit}')",
+      "PART=$(lsblk -nrpo NAME,FSTYPE /dev/nbd0 | awk '$2==\"ext4\" {print $1; exit}')",
       "echo \"Mounting partition: $PART\"",
       "sudo mount \"$PART\" /mnt",
 
