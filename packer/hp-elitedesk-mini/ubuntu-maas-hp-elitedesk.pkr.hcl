@@ -64,6 +64,7 @@ post-processor "shell-local" {
       # attach qcow2 via nbd
       "sudo modprobe nbd max_part=8",
       "sudo qemu-nbd --connect=/dev/nbd0 \"$QCOW2\"",
+      "sudo lsblk /dev/nbd0",
 
       # detect ext4 partition
       "PART=$(lsblk -nrpo NAME,FSTYPE /dev/nbd0 | awk '$2==\"ext4\" {print $1; exit}')",
