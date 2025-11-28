@@ -65,10 +65,8 @@ post-processor "shell-local" {
       "sudo modprobe nbd max_part=8",
       "sudo qemu-nbd --connect=/dev/nbd0 \"$QCOW2\"",
 
-      # inspect partitions and mount root (adjust partition number if needed)
-      "PART=$(lsblk -nrpo NAME,TYPE /dev/nbd0 | awk '$2==\"part\" {print $1; exit}')",
-      "echo \"Mounting partition: $PART\"",
-      "sudo mount \"$PART\" /mnt",
+      # mount image
+      "sudo mount /dev/nbd0 /mnt",
 
       # copy kernel/initrd
       "cp /mnt/boot/vmlinuz-* \"$OUTDIR/boot-kernel\" || true",
