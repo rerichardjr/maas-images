@@ -28,6 +28,7 @@ source "qemu" "ubuntu" {
   shutdown_command   = "sudo shutdown -P now"
   boot_wait          = "5s"
   headless           = true
+  output_directory = "output-qemu"
 }
 
 build {
@@ -47,11 +48,12 @@ build {
 
   # Extract boot files and package MAAS-ready .tar.gz (runs on host)
 post-processor "shell-local" {
+    environment_vars = ["VERSION=${var.ubuntu_release}"]
     inline = [
       "echo 'Looking for QCOW2 file...' && ls -la output-qemu/",
       "QCOW2=$(find output-qemu -name '*.qcow2' | head -1)",
       "echo \"Found QCOW2: $QCOW2\"",
-      "OUTDIR=maas-ubuntu-24.04-hp-elitedesk-mini",
+      "OUTDIR=maas-ubuntu-$VERSION-hp-elitedesk-mini",
       "mkdir -p $OUTDIR",
       "cp \"$QCOW2\" $OUTDIR/disk1.img",
       "virt-copy-out -a \"$QCOW2\" /boot/vmlinuz $OUTDIR/boot-kernel",
