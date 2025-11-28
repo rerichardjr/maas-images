@@ -59,7 +59,7 @@ post-processor "shell-local" {
       "mkdir -p $OUTDIR",
       "cp \"$QCOW2\" $OUTDIR/disk1.img",
 
-      "sudo apt-get update && sudo apt-get install -y qemu-utils qemu-system qemu-kvm"
+      "sudo apt-get update && sudo apt-get install -y qemu-utils qemu-system qemu-kvm",
 
       # attach qcow2 via nbd
       "sudo modprobe nbd max_part=8",
