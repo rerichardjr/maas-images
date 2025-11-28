@@ -39,6 +39,7 @@ build {
   provisioner "shell" {
     execute_command = "sudo -S sh -c '{{ .Vars }} {{ .Path }}'"
     inline = [
+      "apt-get update && apt-get install -y linux-image-generic",
       #"apt-get update && apt-get install -y ethtool",
       "mkdir -p /etc/udev/rules.d",
       "echo 'ACTION==\"add\", SUBSYSTEM==\"net\", ATTRS{vendor}==\"0x14e4\", ATTRS{device}==\"0x1687\", RUN+=\"/sbin/ethtool -K %k highdma off\"' > /etc/udev/rules.d/80-tg3-highdma-fix.rules",
