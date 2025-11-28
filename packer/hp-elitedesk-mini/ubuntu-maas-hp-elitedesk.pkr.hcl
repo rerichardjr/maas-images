@@ -29,6 +29,7 @@ source "qemu" "ubuntu" {
   boot_wait          = "5s"
   headless           = true
   output_directory = "output-qemu"
+  output_filename = "ubuntu-${var.ubuntu_release}.qcow2"
 }
 
 build {
