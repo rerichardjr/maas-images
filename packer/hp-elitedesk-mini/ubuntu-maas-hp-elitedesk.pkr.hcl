@@ -49,7 +49,7 @@ build {
 
   # Extract boot files and package MAAS-ready .tar.gz (runs on host)
 post-processor "shell-local" {
-    environment_vars = ["VERSION=${var.ubuntu_release}", "LIBGUESTFS_BACKEND=direct"]
+    environment_vars = ["VERSION=${var.ubuntu_release}"]
     inline = [
       "echo 'Looking for QCOW2 file...' && ls -la output-qemu/",
       #"QCOW2=$(find output-qemu -name '*.qcow2' | head -1)",
@@ -58,8 +58,26 @@ post-processor "shell-local" {
       "OUTDIR=maas-ubuntu-$VERSION-hp-elitedesk-mini",
       "mkdir -p $OUTDIR",
       "cp \"$QCOW2\" $OUTDIR/disk1.img",
-      "virt-copy-out -a \"$QCOW2\" /boot/vmlinuz $OUTDIR/boot-kernel",
-      "virt-copy-out -a \"$QCOW2\" '/boot/initrd.img-*' $OUTDIR/boot-initrd || true",
+
+      "sudo apt-get update && sudo apt-get install -y qemu-utils qemu-system qemu-kvm"
+
+      # attach qcow2 via nbd
+      "sudo modprobe nbd max_part=8",
+      "sudo qemu-nbd --connect=/dev/nbd0 \"$QCOW2\"",
+
+      # inspect partitions and mount root (adjust partition number if needed)
+      "PART=$(lsblk -nrpo NAME,TYPE /dev/nbd0 | awk '$2==\"part\" {print $1; exit}')",
+      "echo \"Mounting partition: $PART\"",
+      "sudo mount \"$PART\" /mnt",
+
+      # copy kernel/initrd
+      "cp /mnt/boot/vmlinuz-* \"$OUTDIR/boot-kernel\" || true",
+      "cp /mnt/boot/initrd.img-* \"$OUTDIR/boot-initrd\" || true",
+
+      # cleanup
+      "sudo umount /mnt",
+      "sudo qemu-nbd --disconnect /dev/nbd0",
+
       "tar -czf $OUTDIR.tar.gz -C $OUTDIR .",
       "rm -rf $OUTDIR",
       "echo 'SUCCESS: MAAS image created → $OUTDIR.tar.gz'"
