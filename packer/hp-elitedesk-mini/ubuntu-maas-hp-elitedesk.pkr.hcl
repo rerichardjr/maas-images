@@ -81,6 +81,7 @@ post-processor "shell-local" {
       "sudo umount /mnt",
       "sudo qemu-nbd --disconnect /dev/nbd0",
 
+      "ls -la $OUTDIR",
       "tar -czf $OUTDIR.tar.gz -C $OUTDIR .",
       "rm -rf $OUTDIR",
       "echo 'SUCCESS: MAAS image created → $OUTDIR.tar.gz'"
