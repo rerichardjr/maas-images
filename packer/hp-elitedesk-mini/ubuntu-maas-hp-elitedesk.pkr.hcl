@@ -39,7 +39,7 @@ build {
   provisioner "shell" {
     execute_command = "sudo -S sh -c '{{ .Vars }} {{ .Path }}'"
     inline = [
-      "apt-get update && apt-get install -y linux-image-generic",
+      #"apt-get update && apt-get install -y linux-image-generic",
       #"apt-get update && apt-get install -y ethtool",
       "mkdir -p /etc/udev/rules.d",
       "echo 'ACTION==\"add\", SUBSYSTEM==\"net\", ATTRS{vendor}==\"0x14e4\", ATTRS{device}==\"0x1687\", RUN+=\"/sbin/ethtool -K %k highdma off\"' > /etc/udev/rules.d/80-tg3-highdma-fix.rules",
@@ -74,8 +74,8 @@ post-processor "shell-local" {
       "sudo mount /dev/nbd0p1 /mnt",
 
       # fetch kernel/initrd from cloud-images release directory
-      "wget -O \"$OUTDIR/boot-kernel\" https://cloud-images.ubuntu.com/releases/${var.ubuntu_release}/release/ubuntu-${var.ubuntu_release}-server-cloudimg-amd64-vmlinuz-generic",
-      "wget -O \"$OUTDIR/boot-initrd\" https://cloud-images.ubuntu.com/releases/${var.ubuntu_release}/release/ubuntu-${var.ubuntu_release}-server-cloudimg-amd64-initrd-generic",
+      "wget -O \"$OUTDIR/boot-kernel\" https://cloud-images.ubuntu.com/releases/${var.ubuntu_release}/release/unpacked/ubuntu-${var.ubuntu_release}-server-cloudimg-amd64-vmlinuz-generic",
+      "wget -O \"$OUTDIR/boot-initrd\" https://cloud-images.ubuntu.com/releases/${var.ubuntu_release}/release/unpacked/ubuntu-${var.ubuntu_release}-server-cloudimg-amd64-initrd-generic",
 
       # cleanup
       "sudo umount /mnt",
