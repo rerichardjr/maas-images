@@ -79,6 +79,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: maas-ubuntu-noble-hp-elitedesk-mini
-          path: packer/hp-elitedesk-mini/maas-ubuntu-noble-hp-elitedesk-mini.tar.gz
+          path: packer/hp-elitedesk-mini/maas-ubuntu-24.04-hp-elitedesk-mini.tar.gz
           retention-days: 30
   
