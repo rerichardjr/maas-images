@@ -13,7 +13,7 @@ variable "ubuntu_release" {
 }
 
 source "qemu" "ubuntu" {
-  disk_image         = true
+  #disk_image         = true
   iso_url            = "https://cloud-images.ubuntu.com/releases/server/${var.ubuntu_release}/release/ubuntu-${var.ubuntu_release}-server-cloudimg-amd64.img"
   iso_checksum       = "file:https://cloud-images.ubuntu.com/releases/server/${var.ubuntu_release}/release/SHA256SUMS"
   disk_size          = "20000"
@@ -73,9 +73,9 @@ post-processor "shell-local" {
       #"sudo mount \"$PART\" /mnt",
       "sudo mount /dev/nbd0p1 /mnt",
 
-      # copy kernel/initrd
-      "cp /mnt/boot/vmlinuz-* \"$OUTDIR/boot-kernel\" || true",
-      "cp /mnt/boot/initrd.img-* \"$OUTDIR/boot-initrd\" || true",
+      # fetch kernel/initrd from cloud-images release directory
+      "wget -O \"$OUTDIR/boot-kernel\" https://cloud-images.ubuntu.com/releases/${var.ubuntu_release}/release/ubuntu-${var.ubuntu_release}-server-cloudimg-amd64-vmlinuz-generic",
+      "wget -O \"$OUTDIR/boot-initrd\" https://cloud-images.ubuntu.com/releases/${var.ubuntu_release}/release/ubuntu-${var.ubuntu_release}-server-cloudimg-amd64-initrd-generic",
 
       # cleanup
       "sudo umount /mnt",
